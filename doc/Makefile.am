@@ -14,6 +14,7 @@ FIREHOLMANUALXML_CHAPTERS= \
 	chapter-intro.xml \
 	chapter-language.xml \
 	chapter-security.xml \
+	chapter-rfc4890.xml \
 	chapter-troubleshooting.xml
 
 FIREHOLMANUALXML_REFERENCES = \

@@ -688,9 +688,10 @@ DEFAULT_INTERFACE_POLICY="DROP"
 DEFAULT_ROUTER_POLICY="RETURN"
 
 # Which is the filter table chains policy during firewall activation?
-FIREHOL_INPUT_ACTIVATION_POLICY="ACCEPT"
-FIREHOL_OUTPUT_ACTIVATION_POLICY="ACCEPT"
+FIREHOL_INPUT_ACTIVATION_POLICY="DROP"
+FIREHOL_OUTPUT_ACTIVATION_POLICY="DROP"
 FIREHOL_FORWARD_ACTIVATION_POLICY="DROP"
+FIREHOL_ESTABLISHED_ACTIVATION_ACCEPT=1
 
 # Should we drop all INVALID packets always?
 FIREHOL_DROP_INVALID=0
@@ -7165,6 +7166,16 @@ then
 	iptables_cmd -A FORWARD -m state --state INVALID -j DROP
 fi
 
+# Allow existing traffic to continue:
+#   insert as the first rule in each chain, making it easy to undo
+#   once the firewall is completely established
+if [ "\${FIREHOL_ESTABLISHED_ACTIVATION_ACCEPT}" = "1" ]
+then
+  iptables_cmd -I INPUT 1 -m state --state ESTABLISHED,RELATED -j ACCEPT
+  iptables_cmd -I OUTPUT 1 -m state --state ESTABLISHED,RELATED -j ACCEPT
+  iptables_cmd -I FORWARD 1 -m state --state ESTABLISHED,RELATED -j ACCEPT
+fi
+
 EOF
 
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -7247,6 +7258,16 @@ do
 	iptables_cmd -t filter -P "\${c}" DROP >${FIREHOL_OUTPUT}.log 2>&1
 	r=\$?; test ! \${r} -eq 0 && runtime_error error \${r} INIT iptables_cmd -t filter -P "\${c}" DROP
 done
+
+# Remove rules inserted which were to keep existing traffic alive during
+# activation
+if [ "\${FIREHOL_ESTABLISHED_ACTIVATION_ACCEPT}" = "1" ]
+then
+	iptables_cmd -D INPUT 1
+	iptables_cmd -D OUTPUT 1
+	iptables_cmd -D FORWARD 1
+fi
+
 
 EOF
 

@@ -1,0 +1,9 @@
+<!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+                         "docbook/docbook-xml/docbookx.dtd">
+<bookinfo>
+  <title>FireHOL Manual</title>
+  <productname>FireHOL</productname>
+  <corpauthor>FireHOL Team</corpauthor>
+  <date>Built DATE</date>
+  <releaseinfo>FireHOL VERSION</releaseinfo>
+</bookinfo>

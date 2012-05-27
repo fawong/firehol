@@ -7133,22 +7133,21 @@ do
 	# This will be used at the end to make it DROP all packets.
 	test "\${t}" = "filter" && firehol_filter_chains="\${chains}"
 	
-	# Set the policy to ACCEPT on all default chains.
+	# Set the policy to ACCEPT on all default chains, except filter where
+	# we use the value specified by the user if there is one, and DROP
+	# if not.
 	for c in \${chains}
 	do
-		iptables_cmd -t "\${t}" -P "\${c}" ACCEPT >${FIREHOL_OUTPUT}.log 2>&1
-		r=\$?; test ! \${r} -eq 0 && runtime_error error \${r} INIT iptables_cmd -t "\${t}" -P "\${c}" ACCEPT
+		policy=ACCEPT
+		if [ "\${t}" = "filter" ]
+		then
+			eval policy=\\\${FIREHOL_\${c}_ACTIVATION_POLICY}
+			test -z "\${policy}" && policy=DROP
+		fi
+		iptables_cmd -t "\${t}" -P "\${c}" "\${policy}" >${FIREHOL_OUTPUT}.log 2>&1
+		r=\$?; test ! \${r} -eq 0 && runtime_error error \${r} INIT iptables_cmd -t "\${t}" -P "\${c}" "\${policy}"
 	done
 done
-
-iptables_cmd -t filter -P INPUT "\${FIREHOL_INPUT_ACTIVATION_POLICY}" >${FIREHOL_OUTPUT}.log 2>&1
-r=\$?; test ! \${r} -eq 0 && runtime_error error \${r} INIT iptables_cmd -t filter -P INPUT "\${FIREHOL_INPUT_ACTIVATION_POLICY}"
-
-iptables_cmd -t filter -P OUTPUT "\${FIREHOL_OUTPUT_ACTIVATION_POLICY}" >${FIREHOL_OUTPUT}.log 2>&1
-r=\$?; test ! \${r} -eq 0 && runtime_error error \${r} INIT iptables_cmd -t filter -P OUTPUT "\${FIREHOL_OUTPUT_ACTIVATION_POLICY}"
-
-iptables_cmd -t filter -P FORWARD "\${FIREHOL_FORWARD_ACTIVATION_POLICY}" >${FIREHOL_OUTPUT}.log 2>&1
-r=\$?; test ! \${r} -eq 0 && runtime_error error \${r} INIT iptables_cmd -t filter -P FORWARD "\${FIREHOL_FORWARD_ACTIVATION_POLICY}"
 
 # Accept everything in/out the loopback device.
 if [ "\${FIREHOL_TRUST_LOOPBACK}" = "1" ]

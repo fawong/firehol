@@ -367,8 +367,15 @@ iptables_cmd -nxvL >/dev/null 2>&1
 # ----------------------------------------------------------------------
 # Directories and files
 
-# These files will be created and deleted during our run.
-FIREHOL_DIR="/tmp/.firehol-tmp-$$-${RANDOM}-${RANDOM}"
+# Create an empty temporary directory we need for this run.
+if ! FIREHOL_DIR="`mktemp -d -t .firehol-tmp-XXXXXX`"
+then
+            echo >&2
+            echo >&2
+            echo >&2 "Cannot create temporary directory."
+            echo >&2
+            exit 1
+fi
 FIREHOL_CHAINS_DIR="${FIREHOL_DIR}/chains"
 FIREHOL_OUTPUT="${FIREHOL_DIR}/firehol-out.sh"
 FIREHOL_SAVED="${FIREHOL_DIR}/firehol-save.sh"
@@ -520,6 +527,7 @@ then
 	"${CHMOD_CMD}" 700 "${FIREHOL_CONFIG_DIR}/services"
 fi
 
+<<<<<<< HEAD:firehol.sh
 # Remove any old directories that might be there.
 if [ -d "${FIREHOL_DIR}" ]
 then
@@ -533,7 +541,6 @@ then
 		exit 1
 	fi
 fi
-"${MKDIR_CMD}" "${FIREHOL_DIR}"				|| exit 1
 "${MKDIR_CMD}" "${FIREHOL_CHAINS_DIR}"			|| exit 1
 
 # prepare the file that will hold all modules to be loaded.

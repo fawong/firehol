@@ -2267,46 +2267,8 @@ firehol_wget() {
 	return 1
 }
 
-FIREHOL_ECN_SHAME_URL="http://urchin.earth.li/cgi-bin/ecn.pl?output=ip"
 ecn_shame() {
-	work_realcmd_helper ${FUNCNAME} "$@"
-	
-	set_work_function -ne "Initializing $FUNCNAME"
-	
-	require_work clear || ( error "$FUNCNAME cannot be used in '${work_cmd}'. Put it before any '${work_cmd}' definition."; return 1 )
-	
-	if [ `${CAT_CMD} /proc/sys/net/ipv4/tcp_ecn` -eq 1 ]
-	then
-		set_work_function "Fetching '${FIREHOL_ECN_SHAME_URL}'."
-		
-		# Reads in list of ip address and makes iptables rules to drop ecn
-		# from packets destined for those hosts.
-		# http://urchin.earth.li/ecn/
-		
-		local tmp="${FIREHOL_DIR}/ecn_shame.ips"
-		
-		firehol_wget "${FIREHOL_ECN_SHAME_URL}" | ${SORT_CMD} | ${UNIQ_CMD} >"${tmp}"
-		if [ $? -ne 0 -o ! -s "${tmp}" ]
-		then
-			softwarning "Cannot fetch '${FIREHOL_ECN_SHAME_URL}'."
-		else
-			${MV_CMD} -f "${tmp}" "${FIREHOL_SPOOL_DIR}/ecn_shame.ips"
-		fi
-		
-		set_work_function "Removing ECN for all communication from/to SHAME ECN list."
-		
-		local count=0
-		for ip in `${CAT_CMD} "${FIREHOL_SPOOL_DIR}/ecn_shame.ips"`
-		do
-			local count=$[count + 1]
-			iptables -t mangle -A POSTROUTING -p tcp -d ${ip} -j ECN --ecn-tcp-remove
-		done
-		
-		test ${count} -eq 0 && softwarning "No ECN SHAME IPs found." && return 1
-	else
-		softwarning "TCP_ECN is not enabled in the kernel. ECN_SHAME helper is ignored."
-		return 0
-	fi
+	softwarning "ECN_SHAME IP list no longer available, helper is ignored."
 	return 0
 }
 

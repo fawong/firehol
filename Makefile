@@ -1,13 +1,10 @@
-DB_XSL_BASE=/usr/share/xml/docbook/stylesheet/docbook-xsl
-DB_DTD_BASE=/usr/share/xml/docbook/schema/dtd/4.5
 PAPERTYPE=A4
 
 VERSION=$(shell ./get-version.sh ChangeLog)
 
-DB_SCHEMA_DTD=$(DB_DTD_BASE)/docbookx.dtd
+DB_XSL_BASE=http://docbook.sourceforge.net/release/xsl/current
 DB_TITLE_XSL=$(DB_XSL_BASE)/template/titlepage.xsl
 DB_MAN_XSL=$(DB_XSL_BASE)/manpages/docbook.xsl
-DB_FO_XSL=$(DB_XSL_BASE)/fo/docbook.xsl
 DB_HTML_XSL=$(DB_XSL_BASE)/html/docbook.xsl
 
 DBSRC=doc/chapter-intro.xml doc/chapter-language.xml doc/chapter-security.xml \
@@ -54,7 +51,7 @@ $(OUT)/firehol: $(BASEFILES)
 	install -m 755 build/tmp/firehol $(OUT)/firehol
 
 build/tmp/titlepage-fo.xsl: $(OUT)/firehol doc/titlepage-fo.xml
-	xsltproc --stringparam ns http://www.w3.org/1999/XSL/Format --output build/tmp/titlepage-fo.xsl $(DB_TITLE_XSL) doc/titlepage-fo.xml
+	xsltproc --nonet --stringparam ns http://www.w3.org/1999/XSL/Format --output build/tmp/titlepage-fo.xsl $(DB_TITLE_XSL) doc/titlepage-fo.xml
 
 doc/services-list.xml: doc/services-db.txt $(OUT)/firehol
 	doc/mkservicelist.pl doc/services-list.xml $(OUT)/firehol doc/services-db.txt
@@ -63,7 +60,7 @@ doc/manual-info.xml: doc/manual-info.txt ChangeLog
 	doc/mkbookinfo.pl doc/manual-info.xml ChangeLog doc/manual-info.txt
 
 build/tmp/db-valid: $(DBSRC) $(DBGEN)
-	xmllint --noout --postvalid --xinclude doc/firehol-manual.xml --dtdvalid $(DB_SCHEMA_DTD)
+	xmllint --nonet --noout --postvalid --xinclude doc/firehol-manual.xml
 	touch build/tmp/db-valid
 
 $(OUT)/man/man1/firehol.1: build/tmp/db-valid $(OUT)/firehol
@@ -85,8 +82,7 @@ $(OUT)/doc/firehol-manual.html: build/tmp/db-valid $(OUT)/firehol
 	chmod 644 $(OUT)/doc/firehol-manual.html
 
 build/tmp/firehol-manual.fo: build/tmp/db-valid $(OUT)/firehol build/tmp/titlepage-fo.xsl doc/pdf.xsl
-	sed -e "s:IMPORTXSL:$(DB_FO_XSL):" doc/pdf.xsl > build/tmp/pdf.xsl
-	xsltproc --nonet --xinclude --stringparam paper.type $(PAPERTYPE) -o build/tmp/firehol-manual.fo build/tmp/pdf.xsl doc/firehol-manual.xml
+	xsltproc --nonet --xinclude --stringparam paper.type $(PAPERTYPE) -o build/tmp/firehol-manual.fo doc/pdf.xsl doc/firehol-manual.xml
 
 $(OUT)/doc/firehol-manual.pdf: build/tmp/firehol-manual.fo
 	fop build/tmp/firehol-manual.fo -pdf $(OUT)/doc/firehol-manual.pdf

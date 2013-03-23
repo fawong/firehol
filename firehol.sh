@@ -371,7 +371,7 @@ iptables_cmd -nxvL >/dev/null 2>&1
 # Directories and files
 
 # Create an empty temporary directory we need for this run.
-if ! FIREHOL_DIR="`mktemp -d -t .firehol-tmp-XXXXXX`"
+if ! FIREHOL_DIR="`mktemp -d -t firehol-XXXXXXXXXX`"
 then
             echo >&2
             echo >&2
@@ -410,6 +410,7 @@ FIREHOL_AUTOSAVE=
 # WHY:
 # Even a CTRL-C will call this and we will not leave temp files.
 # Also, if a configuration file breaks, we will detect this too.
+FIREHOL_CLEAN_TMP=1
 FIREHOL_ACTIVATED_SUCCESSFULLY=0
 FIREHOL_SYSLOG_FACILITY="daemon"
 FIREHOL_NOTIFICATION_PROGRAM=""
@@ -440,7 +441,12 @@ firehol_exit() {
 	fi
 	
 	# remove the temporary directory created for this session
-	test -d "${FIREHOL_DIR}" && ${RM_CMD} -rf "${FIREHOL_DIR}"
+	if [ ${FIREHOL_ACTIVATED_SUCCESSFULLY} -eq 0 -a ${FIREHOL_CLEAN_TMP} -eq 0 ]
+	then
+		echo "FireHOL: temporary files left in ${FIREHOL_DIR}"
+	else
+		test -d "${FIREHOL_DIR}" && ${RM_CMD} -rf "${FIREHOL_DIR}"
+	fi
 	
 	# syslog
 	local result=
@@ -7189,10 +7195,18 @@ fi
 
 enable -n trap			# Disable the trap buildin shell command.
 enable -n exit			# Disable the exit buildin shell command.
-source ${FIREHOL_TMP} "$@"	# Run the configuration as a normal script.
+{ source ${FIREHOL_TMP} "$@"; }	# Run the configuration as a normal script.
+source_status=$?
 FIREHOL_LINEID="FIN"
 enable trap			# Enable the trap buildin shell command.
 enable exit			# Enable the exit buildin shell command.
+
+# There was a problem with the generated script - leave it behind
+if [ $source_status -ne 0 ]
+then
+  FIREHOL_CLEAN_TMP=0
+  exit $source_status
+fi
 
 close_cmd	|| ret=$[ret + 1]
 close_master	|| ret=$[ret + 1]

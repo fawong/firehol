@@ -2,8 +2,9 @@
                  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <bookinfo>
   <title>FireHOL Manual</title>
+  <subtitle>Firewalling with FireHOL</subtitle>
   <productname>FireHOL</productname>
   <corpauthor>FireHOL Team</corpauthor>
-  <date>Built DATE</date>
-  <releaseinfo>FireHOL VERSION</releaseinfo>
+  <date>Built @PACKAGE_BUILT_DATE@</date>
+  <releaseinfo>@PACKAGE_VERSION@</releaseinfo>
 </bookinfo>

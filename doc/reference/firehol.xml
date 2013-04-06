@@ -1,12 +1,10 @@
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                          "../docbook/docbook-xml/docbookx.dtd">
+<!-- For license information see firehol-manual-info.xml.in -->
 <refentry id="firehol">
 
 <refentryinfo>
   <author>
-     <authorblurb>
-       <para>FireHOL is heavily based on FireHOL by Costa Tsaouis</para>
-     </authorblurb>
      <authorblurb>
        <para>Original man page by Marc Brockschmidt</para>
      </authorblurb>
@@ -14,7 +12,7 @@
 </refentryinfo>
 
 <refmeta>
-  <refentrytitle>firehol program: firehol</refentrytitle>
+  <refentrytitle>FireHOL program: firehol</refentrytitle>
   <manvolnum>1</manvolnum>
 </refmeta>
 
@@ -62,8 +60,8 @@
 
 <refsect1><title>Description</title>
   <para>
-    <command>firehol</command> invokes <command>iptables(8)</command> to
-    manipulate your firewall.
+    Running <command>firehol</command> invokes
+    <command>iptables(8)</command> to manipulate your firewall.
   </para>
 
   <para>
@@ -91,7 +89,7 @@
     <application>FireHOL</application> is a fork of
     <ulink url="http://firehol.sourceforge.net/">FireHOL</ulink>.
     existing <application>FireHOL</application> configurations should be
-    compatible with <application>firehol</application>,
+    compatible with <application>FireHOL</application>,
     but please see <xref linkend="compatibility"/> for any differences in
     behaviour.
   </para>
@@ -118,7 +116,7 @@
   </para>
 
   <para>
-    When activating panic mode, <application>firehol</application> checks
+    When activating panic mode, <application>FireHOL</application> checks
     for the existence of the <envar>SSH_CLIENT</envar> shell environment
     variable, which is set by <command>ssh</command>. If it finds this, then
     panic mode will allow the established SSH connection specified in this
@@ -126,7 +124,7 @@
   </para>
 
   <note><para>
-    In order for <application>firehol</application> to see the environment
+    In order for <application>FireHOL</application> to see the environment
     variable you must ensure that it is preserved. For <command>sudo</command>
     use the <option>-E</option> and for <command>su</command> omit the
     <option>-</option> (minus sign).
@@ -176,10 +174,10 @@
     <varlistentry><term>condrestart</term>
       <listitem>
         <para>
-          Starts the <application>firehol</application> firewall only if
+          Starts the <application>FireHOL</application> firewall only if
           it is not already active. It does not detect a modified
           configuration file, only verifies that
-          <application>firehol</application> has been started in the past
+          <application>FireHOL</application> has been started in the past
           and not stopped yet.
         </para>
       </listitem>
@@ -208,11 +206,11 @@
           <para>
             External changes may cause a firewall restored after a reboot
             to not work as intended where starting the firewall with
-            <application>firehol</application> will work.
+            <application>FireHOL</application> will work.
           </para>
           <para>
             This is because as part of starting a firewall,
-            <application>firehol</application> checks some changeable values.
+            <application>FireHOL</application> checks some changeable values.
             For instance the current kernel configuration is checked
             (for client port ranges), and RPC servers are queried
             (to allow correct functioning of the NFS service).
@@ -224,7 +222,7 @@
       <listitem>
         <para>
           Parses the configuration file but instead of activating it,
-          <application>firehol</application> shows the generated iptables
+          <application>FireHOL</application> shows the generated iptables
           statements.
         </para>
       </listitem>
@@ -232,13 +230,13 @@
     <varlistentry><term>explain</term>
       <listitem>
         <para>
-          Enters an interactive mode where <application>firehol</application>
+          Enters an interactive mode where <application>FireHOL</application>
           accepts normal configuration commands and presents the generated
           iptables commands for each of them, together with some reasoning
           for its purpose
         </para>
         <para>
-          Additionally, <application>firehol</application> automatically
+          Additionally, <application>FireHOL</application> automatically
           generates a configuration script based on the successful commands
           given.
         </para>
@@ -268,18 +266,18 @@
                   <term>wizard</term>
       <listitem>
         <para>
-          Tries to guess the <application>firehol</application> configuration
+          Tries to guess the <application>FireHOL</application> configuration
           needed for the current machine.
         </para>
         <para>
           <application>FireHOL</application> will not stop or alter the
           running firewall. The configuration file is given in the standard
-          output of <command>firehol</command>, thus
+          output of <command>FireHOL</command>, thus
           <userinput>firehol helpme > /tmp/firehol.conf</userinput>
           will produce the output in <filename>/tmp/firehol.conf</filename>.
         </para>
         <para>
-          The generated <application>firehol</application> configuration
+          The generated <application>FireHOL</application> configuration
           <emphasis>must</emphasis> be edited before use on your systems.
           You are required to take a number of decisions; the comments in
           the generated file will instruct you in the choices you must make.
@@ -298,7 +296,7 @@
     If you are using any variable starting "FIREHOL_" in your configuration,
     you will need to rename it to "FIREHOL_". See
     <xref linkend="firehol-variables"/> for a list of all variables used
-    to control <application>firehol</application>.
+    to control <application>FireHOL</application>.
   </para>
   <para>
     In addition the default values of FIREHOL_*_ACTIVATION_POLICY,

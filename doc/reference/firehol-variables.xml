@@ -21,8 +21,7 @@
   </para>
   <para>
     These variables may be set in the main <application>FireHOL</application>
-    configuration file, <filename>/etc/firehol/firehol.conf</filename> or
-    in the application default file <filename>/etc/default/firehol</filename>.
+    configuration file <filename>/etc/firehol/firehol.conf</filename>.
   </para>
   <para>
     There are also some variables which <application>FireHOL</application>

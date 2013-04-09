@@ -308,7 +308,6 @@
 
 <refsect1><title>Files</title>
   <simplelist type="vert">
-    <member><filename>/etc/default/firehol</filename></member>
     <member><filename>/etc/firehol/firehol.conf</filename></member>
   </simplelist>
 </refsect1>

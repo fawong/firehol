@@ -396,8 +396,8 @@ else
 fi
 
 # The default configuration file, it can be changed on the command line
-SANEWALL_CONFIG_DIR="@SANEWALL_CONFIG_DIR@"
-SANEWALL_CONFIG="${SANEWALL_CONFIG_DIR}/sanewall.conf"
+FIREHOL_CONFIG_DIR="@FIREHOL_CONFIG_DIR@"
+FIREHOL_CONFIG="${FIREHOL_CONFIG_DIR}/firehol.conf"
 
 # Where /etc/init.d/iptables expects its configuration?
 # Leave it empty for automatic detection

@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([sanewall],[0.9.9],[phil@sanewall.org])
+AC_INIT([firehol],[0.9.9],[phil@firehol.org])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([autotool])
 AC_CONFIG_SRCDIR([sbin/firehol.in])
@@ -25,8 +25,8 @@ AC_CONFIG_FILES([doc/firehol-manual-info.xml])
 AC_MSG_NOTICE(***************************************************)
 fi
 
-SANEWALL_CONFIG_DIR=$(eval echo "$sysconfdir/sanewall")
-AC_SUBST(SANEWALL_CONFIG_DIR)
+FIREHOL_CONFIG_DIR=$(eval echo "$sysconfdir/firehol")
+AC_SUBST(FIREHOL_CONFIG_DIR)
 
 AC_CONFIG_FILES([
 	Makefile

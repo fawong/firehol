@@ -25,6 +25,9 @@ AC_CONFIG_FILES([doc/firehol-manual-info.xml])
 AC_MSG_NOTICE(***************************************************)
 fi
 
+FIREHOL_CONFIG_DIR=$(eval echo "$sysconfdir/firehol")
+AC_SUBST(FIREHOL_CONFIG_DIR)
+
 AC_CONFIG_FILES([
 	Makefile
 	sbin/Makefile

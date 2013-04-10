@@ -14,7 +14,7 @@
 #
 
 # See ChangeLog for details
-VERSION=DEVELOPMENT
+VERSION=@PACKAGE_VERSION@
 
 # Make sure only root can run us.
 if [ ! "${UID}" = 0 ]
@@ -395,9 +395,8 @@ else
 	FIREHOL_SPOOL_DIR="/tmp/firehol"
 fi
 
-# The default configuration file
-# It can be changed on the command line
-FIREHOL_CONFIG_DIR="/etc/firehol"
+# The default configuration file, it can be changed on the command line
+FIREHOL_CONFIG_DIR="@FIREHOL_CONFIG_DIR@"
 FIREHOL_CONFIG="${FIREHOL_CONFIG_DIR}/firehol.conf"
 
 # Where /etc/init.d/iptables expects its configuration?

@@ -321,8 +321,8 @@ router lan2lan inface eth0 outface eth1
     <member><xref linkend="firehol-variables"/></member>
     <member><xref linkend="ref-services"/></member>
     <member><xref linkend="ref-actions"/></member>
-    <member>FireHOL Manual: firehol-book.pdf</member>
-    <member><ulink url="http://doc.firehol.org/">FireHOL Online Documentation</ulink></member>
+    <member>FireHOL Manual: firehol-manual.pdf</member>
+    <member><ulink url="http://firehol.org/">FireHOL Online Documentation</ulink></member>
   </simplelist>
 </refsect1>
 

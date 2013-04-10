@@ -316,8 +316,8 @@
   <simplelist type="vert">
     <member><xref linkend="firehol.conf"/></member>
     <member><xref linkend="firehol-variables"/></member>
-    <member>FireHOL Manual: firehol-book.pdf</member>
-    <member><ulink url="http://doc.firehol.org/">FireHOL Online Documentation</ulink></member>
+    <member>FireHOL Manual: firehol-manual.pdf</member>
+    <member><ulink url="http://firehol.org/">FireHOL Online Documentation</ulink></member>
   </simplelist>
 </refsect1>
 

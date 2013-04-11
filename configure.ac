@@ -25,7 +25,7 @@ AC_CONFIG_FILES([doc/firehol-manual-info.xml])
 AC_MSG_NOTICE(***************************************************)
 fi
 
-FIREHOL_CONFIG_DIR=$(eval echo "$sysconfdir/firehol")
+FIREHOL_CONFIG_DIR=$(eval echo "$sysconfdir/firehol" | sed -e 's/^NONE//')
 AC_SUBST(FIREHOL_CONFIG_DIR)
 
 AC_CONFIG_FILES([

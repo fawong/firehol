@@ -2,16 +2,27 @@
 #
 # Startup script to implement /etc/firehol/firehol.conf pre-defined rules.
 #
-# chkconfig: - 20 80
+#   Copyright
 #
-# description: creates stateful iptables packet filtering firewalls.
+#       Copyright (C) 2003-2013 Costa Tsaousis <costa@tsaousis.gr>
+#       Copyright (C) 2012-2013 Phil Whineray <phil@sanewall.org>
 #
-# by Costa Tsaousis <costa@tsaousis.gr>
+#   License
 #
-# config: /etc/firehol/firehol.conf
+#       This program is free software; you can redistribute it and/or modify
+#       it under the terms of the GNU General Public License as published by
+#       the Free Software Foundation; either version 2 of the License, or
+#       (at your option) any later version.
 #
-# $Id: firehol.sh,v 1.296 2013/01/06 23:49:08 ktsaou Exp $
+#       This program is distributed in the hope that it will be useful,
+#       but WITHOUT ANY WARRANTY; without even the implied warranty of
+#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#       GNU General Public License for more details.
 #
+#       You should have received a copy of the GNU General Public License
+#       along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+#       See the file COPYING for details.
 
 # See ChangeLog for details
 VERSION=@PACKAGE_VERSION@

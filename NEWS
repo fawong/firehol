@@ -1,11 +1,21 @@
+2013/04/24:
+
+Release of version 1.0.0
+
+No functional changes from 0.9.10.
+
+Slight changes to README, license snippet in script brought in line with
+recommended wording.
+
+
 2013/04/13:
 
 Release of version 0.9.10
 
 This version allows certain variables to be set via the environment as
-well as via the sanewall.conf file.
+well as via the firehol.conf file.
 
-See the PDF/HTML manual or sanewall-variables manpage for details.
+See the PDF/HTML manual or firehol-variables manpage for details.
 
 
 2013/04/06:

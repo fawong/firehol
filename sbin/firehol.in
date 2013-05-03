@@ -658,7 +658,7 @@ firehol_exit() {
 	then
 		echo
 		echo -n $"FireHOL: Restoring old firewall:"
-		iptables_restore_cmd <"${FIREHOL_SAVED}"
+		iptables_restore_cmd "${FIREHOL_SAVED}"
 		if [ $? -eq 0 ]
 		then
 			local restored="OK"

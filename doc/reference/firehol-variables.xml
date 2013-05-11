@@ -529,6 +529,30 @@ FIREHOL_DROP_ORPHAN_TCP_ACK_FIN="1"
         </para>
       </listitem>
     </varlistentry>
+    <varlistentry><term><envar>FIREHOL_DEBUGGING</envar></term>
+      <listitem>
+        <para>
+          If set to a non-empty value, switches on debug output so that
+          it is possible to see what processing FireHOL is doing.
+        </para>
+        <note>
+          <para>This variable can <emphasis>only</emphasis> be set
+          as an environment variable, since it is processed before any
+          configuration files are read.
+          </para>
+        </note>
+        <para>
+          Default:
+          <programlisting>
+FIREHOL_DEBUGGING=""
+          </programlisting>
+          Example:
+          <programlisting>
+FIREHOL_DEBUGGING="Y"
+          </programlisting>
+        </para>
+      </listitem>
+    </varlistentry>
     <varlistentry><term><envar>WAIT_FOR_IFACE</envar></term>
       <listitem>
         <para>

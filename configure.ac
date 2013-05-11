@@ -31,7 +31,6 @@ AC_SUBST(FIREHOL_CONFIG_DIR)
 AC_CONFIG_FILES([
 	Makefile
 	sbin/Makefile
-	sbin/firehol
 	m4/Makefile
 	doc/Makefile
 	doc/tools/Makefile
@@ -42,5 +41,7 @@ AC_CONFIG_FILES([
 	examples/Makefile
 	etc/Makefile
 	])
+
+AC_CONFIG_FILES([sbin/firehol], [chmod +x sbin/firehol])
 
 AC_OUTPUT

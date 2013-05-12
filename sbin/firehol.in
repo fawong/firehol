@@ -5,7 +5,7 @@
 #   Copyright
 #
 #       Copyright (C) 2003-2013 Costa Tsaousis <costa@tsaousis.gr>
-#       Copyright (C) 2012-2013 Phil Whineray <phil@firehol.org>
+#       Copyright (C) 2012-2013 Phil Whineray <phil@sanewall.org>
 #
 #   License
 #
@@ -23,7 +23,7 @@
 #       along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #       See the file COPYING for details.
-if [ "$SANEWALL_DEBUGGING" ]; then set -v; set -x; fi
+if [ "$FIREHOL_DEBUGGING" ]; then set -v; set -x; fi
 
 # See ChangeLog for details
 VERSION=@PACKAGE_VERSION@

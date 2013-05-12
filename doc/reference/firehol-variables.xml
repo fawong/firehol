@@ -529,11 +529,11 @@ FIREHOL_DROP_ORPHAN_TCP_ACK_FIN="1"
         </para>
       </listitem>
     </varlistentry>
-    <varlistentry><term><envar>SANEWALL_DEBUGGING</envar></term>
+    <varlistentry><term><envar>FIREHOL_DEBUGGING</envar></term>
       <listitem>
         <para>
           If set to a non-empty value, switches on debug output so that
-          it is possible to see what processing Sanewall is doing.
+          it is possible to see what processing FireHOL is doing.
         </para>
         <note>
           <para>This variable can <emphasis>only</emphasis> be set
@@ -544,11 +544,11 @@ FIREHOL_DROP_ORPHAN_TCP_ACK_FIN="1"
         <para>
           Default:
           <programlisting>
-SANEWALL_DEBUGGING=""
+FIREHOL_DEBUGGING=""
           </programlisting>
           Example:
           <programlisting>
-SANEWALL_DEBUGGING="Y"
+FIREHOL_DEBUGGING="Y"
           </programlisting>
         </para>
       </listitem>

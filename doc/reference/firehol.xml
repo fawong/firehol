@@ -174,11 +174,10 @@
     <varlistentry><term>condrestart</term>
       <listitem>
         <para>
-          Starts the <application>FireHOL</application> firewall only if
-          it is not already active. It does not detect a modified
-          configuration file, only verifies that
-          <application>FireHOL</application> has been started in the past
-          and not stopped yet.
+          Restarts the <application>FireHOL</application> firewall only if
+          it is already active. This is the generally expected behaviour
+          (but opposite to <application>FireHOL</application> and
+          <application>FireHOL</application> prior to 1.0.3, 1.1.4).
         </para>
       </listitem>
     </varlistentry>
@@ -273,8 +272,8 @@
           <application>FireHOL</application> will not stop or alter the
           running firewall. The configuration file is given in the standard
           output of <command>firehol</command>, thus
-          <userinput>sanewall helpme > /tmp/sanewall.conf</userinput>
-          will produce the output in <filename>/tmp/sanewall.conf</filename>.
+          <userinput>firehol helpme > /tmp/firehol.conf</userinput>
+          will produce the output in <filename>/tmp/firehol.conf</filename>.
         </para>
         <para>
           The generated <application>FireHOL</application> configuration

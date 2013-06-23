@@ -272,9 +272,9 @@
         <para>
           <application>FireHOL</application> will not stop or alter the
           running firewall. The configuration file is given in the standard
-          output of <command>FireHOL</command>, thus
-          <userinput>firehol helpme > /tmp/firehol.conf</userinput>
-          will produce the output in <filename>/tmp/firehol.conf</filename>.
+          output of <command>firehol</command>, thus
+          <userinput>sanewall helpme > /tmp/sanewall.conf</userinput>
+          will produce the output in <filename>/tmp/sanewall.conf</filename>.
         </para>
         <para>
           The generated <application>FireHOL</application> configuration

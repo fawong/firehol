@@ -164,7 +164,7 @@ db-valid: \
 		$(FIREHOLMANUALXML_CHAPTERS) \
 		$(FIREHOLMANUALXML_REFERENCES) \
 		$(FIREHOLMANUALXML_GENERATED) \
-		firehol-manual-info.xml
+		firehol.ent
 	$(XMLLINT) $(XMLLINT_FLAGS) --noout --postvalid $<
 	touch db-valid
 
@@ -187,7 +187,7 @@ endif
 
 EXTRA_DIST = \
 	services-db.data \
-	firehol-manual-info.xml \
+	firehol.ent \
 	$(FIREHOLMANUALXML_GENERATED) \
 	db-valid \
 	$(FIREHOLMANUALXML_CSS) \
@@ -202,7 +202,7 @@ CLEANFILES =
 DISTCLEANFILES =
 
 MAINTAINERCLEANFILES = \
-	firehol-manual-info.xml \
+	firehol.ent \
 	$(FIREHOLMANUALXML_GENERATED) \
 	db-valid \
 	$(FIREHOLMANUALMAN_GENERATED) \

@@ -171,18 +171,17 @@ do
   echo " v6result $v6out"
   clear_all
   $prog "$cfgfile" start >> "$logfile" 2>&1
-  iptables-save > "$v4out"
-  ip6tables-save > "$v6out"
+  iptables-save > "$v4out".tmp
+  ip6tables-save > "$v6out".tmp
   sed -i -e 's/^Sanewall: //' -e 's/^FireHOL: //' "$logfile"
   sed -i -e '/^Processing file/s/ output\/[^/]*\// /' "$logfile"
   sed -i -e '/^SOURCE/s/ of output\/[^/]*\// of /' "$logfile"
   sed -i -e '/^COMMAND/s/ both iptables_cmd/ iptables_cmd/' "$logfile"
   sed -i -e 's;/sbin/iptables;iptables_cmd;' "$logfile"
-  sed -i -e 's/^# .*/#/' -e '/^:/s/\[[0-9][0-9]*:[0-9][0-9]*\]$/[0:0]/' "$v4out"
-  sed -e '1d' -e '/^\*nat/,/^#/{d}' "$v4out" > "$v4nnout"
-  sed -i -e 's/^# .*/#/' -e '/^:/s/\[[0-9][0-9]*:[0-9][0-9]*\]$/[0:0]/' "$v6out"
-  sed -i -e 's/icmp6-/icmp-/' "$v6out"
-  sed -i -e 's;::\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)/128;\1/32;' "$v6out"
+  tools/reorg-save "$v4out".tmp > "$v4out"
+  tools/reorg-save -n "$v4out".tmp > "$v4nnout"
+  tools/reorg-save "$v6out".tmp > "$v6out"
+  rm -f "$v4out".tmp "$v6out".tmp
   if [ "$audit" ]
   then
     cmp "$v4out" "$v4aud" || echo "Warning: output differs from audited version"

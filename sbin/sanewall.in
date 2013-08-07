@@ -28,6 +28,23 @@ if [ "$SANEWALL_DEBUGGING" ]; then set -v; set -x; fi
 # See ChangeLog for details
 VERSION=@PACKAGE_VERSION@
 
+emit_version() {
+	${CAT_CMD} <<EOF
+
+Sanewall version $VERSION
+(C) Copyright 2012,2013 Phil Whineray <philsanewall.org>
+(C) Copyright 2003, Costa Tsaousis <costa@tsaousis.gr>
+Sanewall is distributed under the GPL v2+.
+Home Page: http://www.sanewall.org
+
+-------------------------------------------------------------------------
+Get notified of new Sanewall releases by subscribing to the mailing list:
+    http://lists.sanewall.org/mailman/listinfo/sanewall-users/
+-------------------------------------------------------------------------
+
+EOF
+}
+
 # Make sure only root can run us.
 if [ ! "${UID}" = 0 ]
 then
@@ -6354,13 +6371,8 @@ case "${arg}" in
 					;;
 			esac
 		else
-		${CAT_CMD} <<EOF
-Sanewall version $VERSION
-(C) Copyright 2012, Phil Whineray <philsanewall.org>
-(C) Copyright 2002-2007, Costa Tsaousis <costa@tsaousis.gr>
-Sanewall is distributed under the GPL v2+.
 
-EOF
+		emit_version
 
 		${CAT_CMD} <<EOF
 Sanewall supports the following command line arguments (only one of them):
@@ -6482,16 +6494,6 @@ Please note that the service:
 
 		server custom imap tcp/143 default accept
 
-
-For more information about sanewall, please refer to:
-
-		http://www.sanewall.org
-
--------------------------------------------------------------------------
-Sanewall controls your firewall. You should want to get updates quickly.
-Subscribe (at the home page) to get notified of new releases.
--------------------------------------------------------------------------
-
 YOU DO NOT KNOW WHAT TO DO? Sanewall can help you! Just run it with the
 argument 'helpme' and it will generate its configuration file for this
 machine. Your running firewall will not be altered or stopped, and no
@@ -6543,19 +6545,9 @@ then
 	echo "version ${SANEWALL_CONFIG_VERSION}" >"${SANEWALL_TEMP_CONFIG}"
 	version ${SANEWALL_CONFIG_VERSION}
 
+	emit_version
+
 	${CAT_CMD} <<EOF
-
-Sanewall version $VERSION
-(C) Copyright 2012, Phil Whineray <philsanewall.org>
-(C) Copyright 2003, Costa Tsaousis <costa@tsaousis.gr>
-Sanewall is distributed under the GPL v2+.
-Home Page: http://www.sanewall.org
-
---------------------------------------------------------------------------------
-Sanewall controls your firewall. You should want to get updates quickly.
-Subscribe (at the home page) to get notified of new releases.
---------------------------------------------------------------------------------
-
 You can now start typing sanewall configuration directives.
 Special interactive commands: help, show, quit
 
@@ -6845,19 +6837,9 @@ then
 	"${MKDIR_CMD}" tcp
 	"${MKDIR_CMD}" udp
 
+	emit_version >&2
+
 	"${CAT_CMD}" >&2 <<EOF
-
-Sanewall version $VERSION
-(C) Copyright 2012, Phil Whineray <philsanewall.org>
-(C) Copyright 2003, Costa Tsaousis <costa@tsaousis.gr>
-Sanewall is distributed under the GPL v2+.
-Home Page: http://www.sanewall.org
-
---------------------------------------------------------------------------------
-Sanewall controls your firewall. You should want to get updates quickly.
-Subscribe (at the home page) to get notified of new releases.
---------------------------------------------------------------------------------
-
 Sanewall will now try to figure out its configuration file on this system.
 Please have all the services and network interfaces on this system running.
 

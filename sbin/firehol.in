@@ -28,6 +28,23 @@ if [ "$FIREHOL_DEBUGGING" ]; then set -v; set -x; fi
 # See ChangeLog for details
 VERSION=@PACKAGE_VERSION@
 
+emit_version() {
+	${CAT_CMD} <<EOF
+
+FireHOL version $VERSION
+(C) Copyright 2003-2013 Costa Tsaousis <costa@tsaousis.gr>
+(C) Copyright 2012-2013 Phil Whineray <philfirehol.org>
+FireHOL is distributed under the GPL v2+.
+Home Page: http://firehol.org
+
+-------------------------------------------------------------------------
+Get notified of new FireHOL releases by subscribing to the mailing list:
+    http://lists.firehol.org/mailman/listinfo/firehol-support/
+-------------------------------------------------------------------------
+
+EOF
+}
+
 # Make sure only root can run us.
 if [ ! "${UID}" = 0 ]
 then
@@ -857,12 +874,12 @@ test -z "$FIREHOL_ROUTING" && \
 	FIREHOL_ROUTING=0
 
 # Where /etc/init.d/iptables expects its configuration?
-test -z "$SANEWALL_AUTOSAVE" && \
-	set_or_def -n SANEWALL_AUTOSAVE "@SANEWALL_AUTOSAVE@" ""
+test -z "$FIREHOL_AUTOSAVE" && \
+	set_or_def -n FIREHOL_AUTOSAVE "@FIREHOL_AUTOSAVE@" ""
 
 # Where /etc/init.d/iptables6 expects its configuration?
-test -z "$SANEWALL_AUTOSAVE6" && \
-	set_or_def -n SANEWALL_AUTOSAVE6 "@SANEWALL_AUTOSAVE6@" ""
+test -z "$FIREHOL_AUTOSAVE6" && \
+	set_or_def -n FIREHOL_AUTOSAVE6 "@FIREHOL_AUTOSAVE6@" ""
 
 # Set to non-empty to wait (max 60 seconds) for a network interface
 test -z "$WAIT_FOR_IFACE" && \
@@ -6403,12 +6420,8 @@ case "${arg}" in
 					;;
 			esac
 		else
-		${CAT_CMD} <<EOF
-$Id: firehol.sh,v 1.296 2013/01/06 23:49:08 ktsaou Exp $
-(C) Copyright 2002-2007, Costa Tsaousis <costa@tsaousis.gr>
-FireHOL is distributed under GPL.
 
-EOF
+		emit_version
 
 		${CAT_CMD} <<EOF
 FireHOL supports the following command line arguments (only one of them):
@@ -6530,16 +6543,6 @@ Please note that the service:
 		
 		server custom imap tcp/143 default accept
 
-
-For more information about FireHOL, please refer to:
-
-		http://firehol.sourceforge.net
-
--------------------------------------------------------------------------
-FireHOL controls your firewall. You should want to get updates quickly.
-Subscribe (at the home page) to get notified of new releases.
--------------------------------------------------------------------------
-
 YOU DO NOT KNOW WHAT TO DO? FireHOL can help you! Just run it with the
 argument 'helpme' and it will generate its configuration file for this
 machine. Your running firewall will not be altered or stopped, and no
@@ -6585,25 +6588,17 @@ if [ "${FIREHOL_MODE}" = "EXPLAIN" ]
 then
 	FIREHOL_CONFIG="Interactive User Input"
 	FIREHOL_LINEID="1"
-	
+
 	FIREHOL_TEMP_CONFIG="${FIREHOL_DIR}/firehol.conf"
-	
-	echo "version ${FIREHOL_VERSION}" >"${FIREHOL_TEMP_CONFIG}"
-	version ${FIREHOL_VERSION}
-	
+
+	echo "version ${FIREHOL_CONFIG_VERSION}" >"${FIREHOL_TEMP_CONFIG}"
+	version ${FIREHOL_CONFIG_VERSION}
+
+	emit_version
+
 	${CAT_CMD} <<EOF
-
-$Id: firehol.sh,v 1.296 2013/01/06 23:49:08 ktsaou Exp $
-(C) Copyright 2003, Costa Tsaousis <costa@tsaousis.gr>
-FireHOL is distributed under GPL.
-Home Page: http://firehol.sourceforge.net
-
---------------------------------------------------------------------------------
-FireHOL controls your firewall. You should want to get updates quickly.
-Subscribe (at the home page) to get notified of new releases.
---------------------------------------------------------------------------------
-
-You can now start typing FireHOL configuration directives.
+You can now start typing firehol configuration directives.
+>>>>>>> d72c791... Point to the mailing list for announcements:sbin/firehol.in
 Special interactive commands: help, show, quit
 
 EOF
@@ -6891,19 +6886,10 @@ then
 	cd ports
 	"${MKDIR_CMD}" tcp
 	"${MKDIR_CMD}" udp
-	
+
+	emit_version >&2
+
 	"${CAT_CMD}" >&2 <<EOF
-
-$Id: firehol.sh,v 1.296 2013/01/06 23:49:08 ktsaou Exp $
-(C) Copyright 2003, Costa Tsaousis <costa@tsaousis.gr>
-FireHOL is distributed under GPL.
-Home Page: http://firehol.sourceforge.net
-
---------------------------------------------------------------------------------
-FireHOL controls your firewall. You should want to get updates quickly.
-Subscribe (at the home page) to get notified of new releases.
---------------------------------------------------------------------------------
-
 FireHOL will now try to figure out its configuration file on this system.
 Please have all the services and network interfaces on this system running.
 
@@ -7709,9 +7695,9 @@ then
 
 	if [ "$IPVER" = "ipv4" -o  "$IPVER" = "both" ]
 	then
-		if [ -z "${SANEWALL_AUTOSAVE}" ]
+		if [ -z "${FIREHOL_AUTOSAVE}" ]
 		then
-			error "No default location to save iptables file. Please set SANEWALL_AUTOSAVE."
+			error "No default location to save iptables file. Please set FIREHOL_AUTOSAVE."
 			echo
 			save_status=1
 		fi
@@ -7719,9 +7705,9 @@ then
 
 	if [ "$IPVER" = "ipv6" -o  "$IPVER" = "both" ]
 	then
-		if [ -z "${SANEWALL_AUTOSAVE6}" ]
+		if [ -z "${FIREHOL_AUTOSAVE6}" ]
 		then
-			error "No default location to save ip6tables file. Please set SANEWALL_AUTOSAVE6."
+			error "No default location to save ip6tables file. Please set FIREHOL_AUTOSAVE6."
 			echo
 			save_status=1
 		fi
@@ -7734,37 +7720,37 @@ then
 
 	if [ "$IPVER" = "ipv4" -o  "$IPVER" = "both" ]
 	then
-		echo -n $"Sanewall: Saving ipv4 firewall to ${SANEWALL_AUTOSAVE}:"
-		IPVER=ipv4 fixed_iptables_save >"${SANEWALL_AUTOSAVE}"
+		echo -n $"FireHOL: Saving ipv4 firewall to ${FIREHOL_AUTOSAVE}:"
+		IPVER=ipv4 fixed_iptables_save >"${FIREHOL_AUTOSAVE}"
 
 		if [ ! $? -eq 0 ]
 		then
-			syslog err "Failed to save new ipv4 firewall to '${SANEWALL_AUTOSAVE}'."
-			failure $"Sanewall: Saving ipv4 firewall to ${SANEWALL_AUTOSAVE}:"
+			syslog err "Failed to save new ipv4 firewall to '${FIREHOL_AUTOSAVE}'."
+			failure $"FireHOL: Saving ipv4 firewall to ${FIREHOL_AUTOSAVE}:"
 			echo
 			save_status=1
 		fi
 
-		syslog info "New ipv4 firewall saved to '${SANEWALL_AUTOSAVE}'."
-		success $"Sanewall: Saving ipv4 firewall to ${SANEWALL_AUTOSAVE}:"
+		syslog info "New ipv4 firewall saved to '${FIREHOL_AUTOSAVE}'."
+		success $"FireHOL: Saving ipv4 firewall to ${FIREHOL_AUTOSAVE}:"
 		echo
 	fi
 
 	if [ "$IPVER" = "ipv6" -o  "$IPVER" = "both" ]
 	then
-		echo -n $"Sanewall: Saving ipv6 firewall to ${SANEWALL_AUTOSAVE6}:"
-		IPVER=ipv6 fixed_iptables_save >"${SANEWALL_AUTOSAVE6}"
+		echo -n $"FireHOL: Saving ipv6 firewall to ${FIREHOL_AUTOSAVE6}:"
+		IPVER=ipv6 fixed_iptables_save >"${FIREHOL_AUTOSAVE6}"
 
 		if [ ! $? -eq 0 ]
 		then
-			syslog err "Failed to save new ipv6 firewall to '${SANEWALL_AUTOSAVE6}'."
-			failure $"Sanewall: Saving ipv6 firewall to ${SANEWALL_AUTOSAVE6}:"
+			syslog err "Failed to save new ipv6 firewall to '${FIREHOL_AUTOSAVE6}'."
+			failure $"FireHOL: Saving ipv6 firewall to ${FIREHOL_AUTOSAVE6}:"
 			echo
 			save_status=1
 		fi
 
-		syslog info "New ipv6 firewall saved to '${SANEWALL_AUTOSAVE6}'."
-		success $"Sanewall: Saving ipv6 firewall to ${SANEWALL_AUTOSAVE6}:"
+		syslog info "New ipv6 firewall saved to '${FIREHOL_AUTOSAVE6}'."
+		success $"FireHOL: Saving ipv6 firewall to ${FIREHOL_AUTOSAVE6}:"
 		echo
 	fi
 

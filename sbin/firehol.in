@@ -28,6 +28,23 @@ if [ "$FIREHOL_DEBUGGING" ]; then set -v; set -x; fi
 # See ChangeLog for details
 VERSION=@PACKAGE_VERSION@
 
+emit_version() {
+	${CAT_CMD} <<EOF
+
+FireHOL version $VERSION
+(C) Copyright 2003-2013 Costa Tsaousis <costa@tsaousis.gr>
+(C) Copyright 2012-2013 Phil Whineray <philfirehol.org>
+FireHOL is distributed under the GPL v2+.
+Home Page: http://firehol.org
+
+-------------------------------------------------------------------------
+Get notified of new FireHOL releases by subscribing to the mailing list:
+    http://lists.firehol.org/mailman/listinfo/firehol-support/
+-------------------------------------------------------------------------
+
+EOF
+}
+
 # Make sure only root can run us.
 if [ ! "${UID}" = 0 ]
 then
@@ -6403,12 +6420,8 @@ case "${arg}" in
 					;;
 			esac
 		else
-		${CAT_CMD} <<EOF
-$Id: firehol.sh,v 1.296 2013/01/06 23:49:08 ktsaou Exp $
-(C) Copyright 2002-2007, Costa Tsaousis <costa@tsaousis.gr>
-FireHOL is distributed under GPL.
 
-EOF
+		emit_version
 
 		${CAT_CMD} <<EOF
 FireHOL supports the following command line arguments (only one of them):
@@ -6530,16 +6543,6 @@ Please note that the service:
 		
 		server custom imap tcp/143 default accept
 
-
-For more information about FireHOL, please refer to:
-
-		http://firehol.sourceforge.net
-
--------------------------------------------------------------------------
-FireHOL controls your firewall. You should want to get updates quickly.
-Subscribe (at the home page) to get notified of new releases.
--------------------------------------------------------------------------
-
 YOU DO NOT KNOW WHAT TO DO? FireHOL can help you! Just run it with the
 argument 'helpme' and it will generate its configuration file for this
 machine. Your running firewall will not be altered or stopped, and no
@@ -6585,25 +6588,17 @@ if [ "${FIREHOL_MODE}" = "EXPLAIN" ]
 then
 	FIREHOL_CONFIG="Interactive User Input"
 	FIREHOL_LINEID="1"
-	
+
 	FIREHOL_TEMP_CONFIG="${FIREHOL_DIR}/firehol.conf"
-	
-	echo "version ${FIREHOL_VERSION}" >"${FIREHOL_TEMP_CONFIG}"
-	version ${FIREHOL_VERSION}
-	
+
+	echo "version ${FIREHOL_CONFIG_VERSION}" >"${FIREHOL_TEMP_CONFIG}"
+	version ${FIREHOL_CONFIG_VERSION}
+
+	emit_version
+
 	${CAT_CMD} <<EOF
-
-$Id: firehol.sh,v 1.296 2013/01/06 23:49:08 ktsaou Exp $
-(C) Copyright 2003, Costa Tsaousis <costa@tsaousis.gr>
-FireHOL is distributed under GPL.
-Home Page: http://firehol.sourceforge.net
-
---------------------------------------------------------------------------------
-FireHOL controls your firewall. You should want to get updates quickly.
-Subscribe (at the home page) to get notified of new releases.
---------------------------------------------------------------------------------
-
-You can now start typing FireHOL configuration directives.
+You can now start typing firehol configuration directives.
+>>>>>>> d72c791... Point to the mailing list for announcements:sbin/firehol.in
 Special interactive commands: help, show, quit
 
 EOF
@@ -6891,19 +6886,10 @@ then
 	cd ports
 	"${MKDIR_CMD}" tcp
 	"${MKDIR_CMD}" udp
-	
+
+	emit_version >&2
+
 	"${CAT_CMD}" >&2 <<EOF
-
-$Id: firehol.sh,v 1.296 2013/01/06 23:49:08 ktsaou Exp $
-(C) Copyright 2003, Costa Tsaousis <costa@tsaousis.gr>
-FireHOL is distributed under GPL.
-Home Page: http://firehol.sourceforge.net
-
---------------------------------------------------------------------------------
-FireHOL controls your firewall. You should want to get updates quickly.
-Subscribe (at the home page) to get notified of new releases.
---------------------------------------------------------------------------------
-
 FireHOL will now try to figure out its configuration file on this system.
 Please have all the services and network interfaces on this system running.
 

@@ -281,8 +281,8 @@ iptables_cmd() {
 		elif [ $host_next -eq 1 ]
 		then
 			host_next=0
-                        local not4=`"${IPTABLES_CMD}" -C INPUT -s "$i" 2>&1 | ${GREP_CMD} "not found"`
-                        local not6=`"${IP6TABLES_CMD}" -C INPUT -s "$i" 2>&1 | ${GREP_CMD} "not found"`
+                        local not4=`"${IPTABLES_CMD}" -D INPUT -s "$i" -d "$i" -g NONEXIST 2>&1 | ${GREP_CMD} "not found"`
+                        local not6=`"${IP6TABLES_CMD}" -D INPUT -s "$i" -d "$i" -g NONEXIST 2>&1 | ${GREP_CMD} "not found"`
 			if [ ! "$not4" -o ! "$not6" ]
 			then
 				# Use the output of the rule check command to

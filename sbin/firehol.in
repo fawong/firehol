@@ -6359,7 +6359,7 @@ case "${arg}" in
 			iptables_cmd --ignore-missing -t "${t}" -Z
 
 			# Find all default chains in this table.
-			chains=`iptables_cmd --ignore-missing -t "${t}" -nL | ${GREP_CMD} "^Chain " | ${CUT_CMD} -d ' ' -f 2`
+			chains=`iptables_cmd --ignore-missing -t "${t}" -nL | ${GREP_CMD} "^Chain " | ${CUT_CMD} -d ' ' -f 2 | ${SORT_CMD} -u`
 			for c in ${chains}
 			do
 				iptables_cmd --ignore-missing -t "${t}" -P "${c}" ACCEPT

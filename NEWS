@@ -1,3 +1,24 @@
+2013/08/19:
+
+Release of version 1.1.5
+
+Uses flock(1) instead of lockfile(1) since util-linux should be more
+commonly installed than procmail.
+
+Fixes IPv4/IPv6 detection for older versions of iptables(8). The "-C" flag
+is not always present.
+
+Cleanups and minor improvements:
+ - Improve error message when an expected command not found
+ - Stop emitting duplicate rules during a "panic"
+ - Remove the blank line from wizard/helpme output
+ - Remove the #! from wizard output - it cannot be executed directly
+ - Man-page for "explain" firehol now notes the output cannot be
+   used with iptables(8) verbatim
+ - Regression tests should now work with any iptables version
+ - Point to the mailing list for announcements
+ - Cleaned up boilerplace information in script
+
 2013/07/06:
 
 Release of version 1.1.4

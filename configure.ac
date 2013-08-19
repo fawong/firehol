@@ -53,7 +53,7 @@ AX_NEED_PROG([IP6TABLES_SAVE_CMD], [ip6tables-save], [ip6tables-save], [$PATH:/s
 AX_NEED_PROG([IPTABLES_CMD], [iptables], [iptables], [$PATH:/sbin:/usr/sbin])
 AX_NEED_PROG([IPTABLES_RESTORE_CMD], [iptables-restore], [iptables-restore], [$PATH:/sbin:/usr/sbin])
 AX_NEED_PROG([IPTABLES_SAVE_CMD], [iptables-save], [iptables-save], [$PATH:/sbin:/usr/sbin])
-AC_CHECK_PROG([LOCKFILE_CMD], [lockfile], [lockfile], [:])
+AC_CHECK_PROG([FLOCK_CMD], [flock], [flock], [:])
 AX_NEED_PROG([LOGGER_CMD], [logger], [logger])
 AX_NEED_PROG([LSMOD_CMD], [lsmod], [lsmod], [$PATH:/sbin:/usr/sbin])
 AX_NEED_PROG([MKDIR_CMD], [mkdir], [mkdir])

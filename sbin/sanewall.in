@@ -152,7 +152,7 @@ set_or_def() {
 	else
 		case "$2" in
 			/*) if [ -x "$2" ]; then value="$2"; fi ;;
-			'@'*) value=$(find_exe "$3") ;;
+			'@'*) value="$3" ;;
 			*) value=$(find_exe "$2") ;;
 		esac
 
@@ -185,7 +185,7 @@ set_or_def IP6TABLES_SAVE_CMD "@IP6TABLES_SAVE_CMD@" "ip6tables-save"
 set_or_def IPTABLES_CMD "@IPTABLES_CMD@" "iptables"
 set_or_def IPTABLES_RESTORE_CMD "@IPTABLES_RESTORE_CMD@" "iptables-restore"
 set_or_def IPTABLES_SAVE_CMD "@IPTABLES_SAVE_CMD@" "iptables-save"
-set_or_def LOCKFILE_CMD "@LOCKFILE_CMD@" ":"
+set_or_def FLOCK_CMD "@FLOCK_CMD@" ":"
 set_or_def LOGGER_CMD "@LOGGER_CMD@" "logger"
 set_or_def LSMOD_CMD "@LSMOD_CMD@" "lsmod"
 set_or_def MKDIR_CMD "@MKDIR_CMD@" "mkdir"
@@ -428,17 +428,20 @@ iptables_restore_cmd() {
 # Concurrent run control
 SANEWALL_LOCK_FILE="/var/run/sanewall.lck"
 
-# Time in secs to consider a lock stale
-SANEWALL_LOCK_FILE_TIMEOUT=600
+# Did we create the lockfile?
+SANEWALL_LOCKED=
 
 sanewall_concurrent_run_lock() {
-	if [ -f "${SANEWALL_LOCK_FILE}" ]
+	if [ "${FLOCK_CMD}" = ":" ]
 	then
-		echo >&2 "Sanewall is already running. Waiting for the other process to exit..."
-	fi
+		# Time in secs to consider a lock stale
+		SANEWALL_LOCK_FILE_TIMEOUT=600
 
-	if [ "${LOCKFILE_CMD}" = ":" ]
-	then
+		if [ -f "${SANEWALL_LOCK_FILE}" ]
+		then
+			echo >&2 "Sanewall is already running. Waiting for the other process to exit..."
+		fi
+
 		local c=0
 		while [ -f "${SANEWALL_LOCK_FILE}" ]
 		do
@@ -448,12 +451,34 @@ sanewall_concurrent_run_lock() {
 		done
 
 		${TOUCH_CMD} "${SANEWALL_LOCK_FILE}"
-
+		SANEWALL_LOCKED=Y
 	else
-		${LOCKFILE_CMD} -1 -r ${SANEWALL_LOCK_FILE_TIMEOUT} -l ${SANEWALL_LOCK_FILE_TIMEOUT} "${SANEWALL_LOCK_FILE}"
+		exec 200>"${SANEWALL_LOCK_FILE}"
+		${FLOCK_CMD} -n 200
+		if [ $? -ne 0 ]
+		then
+			echo >&2 "Sanewall is already running. Exiting..."
+			exit 1
+		fi
+		SANEWALL_LOCKED=Y
 	fi
 
 	return 0
+}
+
+sanewall_concurrent_run_unlock() {
+	case "${FLOCK_CMD}" in
+		':')
+			if [ "${SANEWALL_LOCKED}" ]
+			then
+				${RM_CMD} -f "${SANEWALL_LOCK_FILE}"
+			fi
+		;;
+		*)
+			# flock will automatically release upon exit
+			:
+		;;
+	esac
 }
 
 # Make sure our generated files cannot be accessed by anyone else.
@@ -603,8 +628,7 @@ sanewall_exit() {
 		fi
 	fi
 
-	# remove the lock
-	test -f "${SANEWALL_LOCK_FILE}" && ${RM_CMD} -f "${SANEWALL_LOCK_FILE}"
+	sanewall_concurrent_run_unlock
 
 	return 0
 }

@@ -57,15 +57,7 @@ to the mailing list or bug tracker.
 
 4. Private / Unroutable IPv6 lists may be incomplete.
 
-5. IPv4/IPv6 detection in iptables() could probably be improved
-
-6. The following commands have not received any significant attention
-   so may not work as expected:
-	panic
-	explain
-	helpme/wizard
-
-7. Creating a rule which applies only to one ip type will lead to
+5. Creating a rule which applies only to one ip type will lead to
    empty chains. For example:
       server ssh accept src "10.0.0.0/8"
 

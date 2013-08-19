@@ -1,3 +1,25 @@
+sanewall (1.1.5) unstable; urgency=low
+
+  * Use flock(1) instead of lockfile(1)
+    - Introduces a dependency on util-linux (rather than procmail)
+    - Slight improvements to no-flock fallback code
+
+  * Fix IPv4/IPv6 detection for older versions of iptables(8)
+    - The "-C" flag is not always present
+
+  * Cleanups and minor improvements
+    - Improve error message when an expected command not found
+    - Stop emitting duplicate rules during a "panic"
+    - Remove the blank line from wizard/helpme output
+    - Remove the #! from wizard output - it cannot be executed directly
+    - Man-page for "explain" sanewall now notes the output cannot be
+      used with iptables(8) verbatim
+    - Regression tests should now work with any iptables version
+    - Point to the mailing list for announcements
+    - Cleaned up boilerplace information in script
+
+ -- Phil Whineray <phil@sanewall.org>  Mon, 19 Aug 2013 20:10:00 +0100
+
 sanewall (1.1.4) unstable; urgency=low
 
   * "sanewall save" now creates two files

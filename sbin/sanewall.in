@@ -123,15 +123,18 @@ both() {
 export PATH="${PATH}:/bin:/usr/bin:/sbin:/usr/sbin"
 
 find_exe() {
-	local IFS=:
+	local prog="$1"
+	set -- $prog
 	local name="$1"
+
 	if [ "$name" = ":" ]; then echo ":"; return 0; fi
 
+	local IFS=:
 	set -- $PATH
 	for dir in "$@"
 	do
 		if [ ! "$dir" ]; then dir="."; fi
-		if [ -x "$dir/$name" ]; then echo "$dir/$name"; return 0; fi
+		if [ -x "$dir/$name" ]; then echo "$prog"; return 0; fi
 	done
 	return 1
 }
@@ -201,7 +204,6 @@ set_or_def TR_CMD "@TR_CMD@" "tr"
 set_or_def UNAME_CMD "@UNAME_CMD@" "uname"
 set_or_def UNIQ_CMD "@UNIQ_CMD@" "uniq"
 set_or_def ZCAT_CMD "@ZCAT_CMD@" "zcat"
-set_or_def -n ZCAT_OPTS "@ZCAT_OPTS@" ""
 
 extra_wizard_commands() {
 	set_or_def IP_CMD "@IP_CMD@" "ip"
@@ -3632,8 +3634,8 @@ load_kernel_module() {
 		check_kernel_module ${mod}
 		if [ $? -gt 0 ]
 		then
-			runcmd warn ${SANEWALL_LINEID} modprobe_cmd ${mod} -q
-			echo >>"${SANEWALL_DIR}/modules_to_load.sh" "${MODPROBE_CMD} ${mod} -q"
+			runcmd warn ${SANEWALL_LINEID} modprobe_cmd ${mod}
+			echo >>"${SANEWALL_DIR}/modules_to_load.sh" "${INSMOD_CMD} ${mod}"
 		fi
 	fi
 	return 0

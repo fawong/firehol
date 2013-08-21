@@ -297,8 +297,8 @@ server smtp accept inface eth0 outface eth1
 <refsect1><title>Interface only</title>
   <para>
     These parameters match information related to information gathered
-    from the local host. They are silently ignored for incoming requests
-    or requests that will be forwarded.
+    from the local host. They apply only to outgoing packets and are
+    silently ignored for incoming requests and requests that will be forwarded.
   </para>
   <para>
     Use <command>uid</command> to match the operating system user sending
@@ -306,13 +306,14 @@ server smtp accept inface eth0 outface eth1
     or a quoted list of the two.
   </para>
   <para>
-    For example, to limit which users can access POP3 and IMAP:
+    For example, to limit which users can access POP3 and IMAP by preventing
+    replies for certain users from being sent:
     <programlisting>client "pop3 imap" accept user not "user1 user2 user3"
     </programlisting>
   </para>
   <para>
-    This will allow all requests to reach the server but prevent replies
-    unless the web server is running as apache:
+    Similarly, this will allow all requests to reach the server but
+    prevent replies unless the web server is running as apache:
     <programlisting>server http accept user apache
     </programlisting>
   </para>

@@ -457,6 +457,7 @@ firehol_concurrent_run_lock() {
 		FIREHOL_LOCKED=Y
 	else
 		exec 200>"${FIREHOL_LOCK_FILE}"
+                if [ $? -ne 0 ]; then exit; fi
 		${FLOCK_CMD} -n 200
 		if [ $? -ne 0 ]
 		then

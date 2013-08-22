@@ -123,9 +123,11 @@ both() {
 export PATH="${PATH}:/bin:/usr/bin:/sbin:/usr/sbin"
 
 find_exe() {
-	local prog="$1"
-	set -- $prog
+	local cmd="$1"
+	set -- $cmd
 	local name="$1"
+	shift
+	local args="$@"
 
 	if [ "$name" = ":" ]; then echo ":"; return 0; fi
 
@@ -134,7 +136,14 @@ find_exe() {
 	for dir in "$@"
 	do
 		if [ ! "$dir" ]; then dir="."; fi
-		if [ -x "$dir/$name" ]; then echo "$prog"; return 0; fi
+		if [ -x "$dir/$name" ]; then
+			if [ "$args" ]; then
+				echo "$dir/$name $args"
+			else
+				echo "$dir/$name"
+			fi
+			return 0
+		fi
 	done
 	return 1
 }
@@ -154,14 +163,14 @@ set_or_def() {
 		esac
 	else
 		case "$2" in
-			/*) if [ -x "$2" ]; then value="$2"; fi ;;
-			'@'*) value="$3" ;;
-			*) value=$(find_exe "$2") ;;
+			/*) want="$2"; if [ -x "$2" ]; then value="$2"; fi ;;
+			'@'*) want="$3"; value=$(find_exe "$want") ;;
+			*) want="$2"; value=$(find_exe "$want") ;;
 		esac
 
 		if [ ! "$value" ]
 		then
-			echo "Missing required command: $1 (wanted $2)"
+			echo "Missing required command: $1 (wanted $want)"
 			exit 1
 		fi
 	fi
@@ -181,7 +190,7 @@ set_or_def FIND_CMD "@FIND_CMD@" "find"
 set_or_def FOLD_CMD "@FOLD_CMD@" "fold"
 set_or_def GREP_CMD "@GREP@" "grep"
 set_or_def HEAD_CMD "@HEAD_CMD@" "head"
-set_or_def INSMOD_CMD "@INSMOD_CMD@" "modprobe"
+set_or_def INSMOD_CMD "@INSMOD_CMD@" "modprobe -q"
 set_or_def IP6TABLES_CMD "@IP6TABLES_CMD@" "ip6tables"
 set_or_def IP6TABLES_RESTORE_CMD "@IP6TABLES_RESTORE_CMD@" "ip6tables-restore"
 set_or_def IP6TABLES_SAVE_CMD "@IP6TABLES_SAVE_CMD@" "ip6tables-save"
@@ -217,7 +226,7 @@ then
 fi
 
 modprobe_cmd() {
-	"${INSMOD_CMD}" "${@}"
+	${INSMOD_CMD} "${@}"
 	status=$?
 	if [ $status -eq 17 ]
 	then
@@ -239,11 +248,11 @@ iptables_cmd() {
 
 	if [ "$IPVER" = "ipv4" ]
 	then
-		"${IPTABLES_CMD}" "$@"
+		${IPTABLES_CMD} "$@"
 		status=$?
 	elif [ "$IPVER" = "ipv6" ]
 	then
-		"${IP6TABLES_CMD}" "$@"
+		${IP6TABLES_CMD} "$@"
 		status=$?
 	else
 		local status4=0
@@ -284,8 +293,8 @@ iptables_cmd() {
 		elif [ $host_next -eq 1 ]
 		then
 			host_next=0
-                        local not4=`"${IPTABLES_CMD}" -D INPUT -s "$i" -d "$i" -g NONEXIST 2>&1 | ${GREP_CMD} "not found"`
-                        local not6=`"${IP6TABLES_CMD}" -D INPUT -s "$i" -d "$i" -g NONEXIST 2>&1 | ${GREP_CMD} "not found"`
+                        local not4=`${IPTABLES_CMD} -D INPUT -s "$i" -d "$i" -g NONEXIST 2>&1 | ${GREP_CMD} "not found"`
+                        local not6=`${IP6TABLES_CMD} -D INPUT -s "$i" -d "$i" -g NONEXIST 2>&1 | ${GREP_CMD} "not found"`
 			if [ ! "$not4" -o ! "$not6" ]
 			then
 				# Use the output of the rule check command to
@@ -351,12 +360,12 @@ iptables_cmd() {
 
 		if [ $ipv6_ok -eq 1 ]
 		then
-			"${IP6TABLES_CMD}" "$@"
+			${IP6TABLES_CMD} "$@"
 			status6=$?
 		fi
 		if [ $ipv4_ok -eq 1 ]
 		then
-			"${IPTABLES_CMD}" "$@"
+			${IPTABLES_CMD} "$@"
 			status4=$?
 		fi
 		if [ ${status6} -ne 0 ]
@@ -377,7 +386,7 @@ iptables_save_cmd() {
 	if [ "$IPVER" = "ipv4" -o  "$IPVER" = "both" ]
 	then
 		echo "#IPV4-START"
-		"${IPTABLES_SAVE_CMD}" "${@}"
+		${IPTABLES_SAVE_CMD} "${@}"
 		status4=$?
 		echo "#IPV4-END"
 	fi
@@ -385,7 +394,7 @@ iptables_save_cmd() {
 	if [ "$IPVER" = "ipv6" -o  "$IPVER" = "both" ]
 	then
 		echo "#IPV6-START"
-		"${IP6TABLES_SAVE_CMD}" "$@"
+		${IP6TABLES_SAVE_CMD} "$@"
 		status6=$?
 		echo "#IPV6-END"
 	fi
@@ -408,14 +417,14 @@ iptables_restore_cmd() {
 	if [ "$IPVER" = "ipv4" -o  "$IPVER" = "both" ]
 	then
 		${SED_CMD} -ne '/^#IPV4-START/,/^#IPV4-END/p' ${file} | \
-			"${IPTABLES_RESTORE_CMD}" "$@"
+			${IPTABLES_RESTORE_CMD} "$@"
 		status4=$?
 	fi
 
 	if [ "$IPVER" = "ipv6" -o  "$IPVER" = "both" ]
 	then
 		${SED_CMD} -ne '/^#IPV6-START/,/^#IPV6-END/p' ${file} | \
-			"${IP6TABLES_RESTORE_CMD}" "$@"
+			${IP6TABLES_RESTORE_CMD} "$@"
 		status6=$?
 	fi
 
@@ -435,7 +444,7 @@ FIREHOL_LOCK_FILE="/var/run/firehol.lck"
 FIREHOL_LOCKED=
 
 firehol_concurrent_run_lock() {
-	if [ "${FLOCK_CMD}" = ":" ]
+	if [ ${FLOCK_CMD} = ":" ]
 	then
 		# Time in secs to consider a lock stale
 		FIREHOL_LOCK_FILE_TIMEOUT=600
@@ -471,7 +480,7 @@ firehol_concurrent_run_lock() {
 }
 
 firehol_concurrent_run_unlock() {
-	case "${FLOCK_CMD}" in
+	case ${FLOCK_CMD} in
 		':')
 			if [ "${FIREHOL_LOCKED}" ]
 			then
@@ -574,8 +583,8 @@ FIREHOL_NOTIFICATION_PROGRAM=""
 
 syslog() {
 	local p="$1"; shift
-	
-	"${LOGGER_CMD}" -p ${FIREHOL_SYSLOG_FACILITY}.$p -t "FireHOL[$$]" "${@}"
+
+	${LOGGER_CMD} -p ${FIREHOL_SYSLOG_FACILITY}.$p -t "firehol[$$]" "${@}"
 	return 0
 }
 
@@ -692,20 +701,7 @@ then
 	"${CHMOD_CMD}" 700 "${FIREHOL_CONFIG_DIR}/services"
 fi
 
-# Remove any old directories that might be there.
-if [ -d "${FIREHOL_DIR}" ]
-then
-	"${RM_CMD}" -rf "${FIREHOL_DIR}"
-	if [ $? -ne 0 -o -e "${FIREHOL_DIR}" ]
-	then
-		echo >&2
-		echo >&2
-		echo >&2 "Cannot clean temporary directory '${FIREHOL_DIR}'."
-		echo >&2
-		exit 1
-	fi
-fi
-"${MKDIR_CMD}" "${FIREHOL_CHAINS_DIR}"			|| exit 1
+${MKDIR_CMD} "${FIREHOL_CHAINS_DIR}"			|| exit 1
 
 # prepare the file that will hold all modules to be loaded.
 # this is needed only when we are going to save the firewall
@@ -721,9 +717,9 @@ EOFMTL
 # Make sure we have a directory for our data.
 if [ ! -d "${FIREHOL_SPOOL_DIR}" ]
 then
-	"${MKDIR_CMD}" "${FIREHOL_SPOOL_DIR}"		|| exit 1
-	"${CHOWN_CMD}" root:root "${FIREHOL_SPOOL_DIR}"	|| exit 1
-	"${CHMOD_CMD}" 700 "${FIREHOL_SPOOL_DIR}"	|| exit 1
+	${MKDIR_CMD} "${FIREHOL_SPOOL_DIR}"		|| exit 1
+	${CHOWN_CMD} root:root "${FIREHOL_SPOOL_DIR}"	|| exit 1
+	${CHMOD_CMD} 700 "${FIREHOL_SPOOL_DIR}"	|| exit 1
 fi
 
 load_ips() {
@@ -2534,9 +2530,9 @@ do
 		echo >&2 " >>> Ignoring service in '${FIREHOL_CONFIG_DIR}/services/${f}' because it is not owned by root."
 		continue
 	fi
-	
-	n=`"${HEAD_CMD}" -n 1 "${f}" | "${CUT_CMD}" -d ':' -f 2`
-	"${EXPR_CMD}" ${n} + 0 >/dev/null 2>&1
+
+	n=`${HEAD_CMD} -n 1 "${f}" | ${CUT_CMD} -d ':' -f 2`
+	${EXPR_CMD} ${n} + 0 >/dev/null 2>&1
 	if [ $? -ne 0 ]
 	then
 		echo >&2 " >>> Ignoring service in '${FIREHOL_CONFIG_DIR}/services/${f}' due to malformed header."
@@ -2544,8 +2540,8 @@ do
 	then
 		echo >&2 " >>> Ignoring service '${FIREHOL_CONFIG_DIR}/services/${f}' due to incompatible API version."
 	else
-		n=`"${HEAD_CMD}" -n 1 "${f}" | "${CUT_CMD}" -d ':' -f 3`
-		"${EXPR_CMD}" ${n} + 0 >/dev/null 2>&1
+		n=`${HEAD_CMD} -n 1 "${f}" | ${CUT_CMD} -d ':' -f 3`
+		${EXPR_CMD} ${n} + 0 >/dev/null 2>&1
 		if [ $? -ne 0 ]
 		then
 			echo >&2 " >>> Ignoring service in '${FIREHOL_CONFIG_DIR}/services/${f}' due to malformed API minor number."
@@ -3267,7 +3263,7 @@ runcmd() {
 	"${cmd}" "$@" >${FIREHOL_OUTPUT}.log 2>&1
 	if [ "$FIREHOL_DEBUGGING" ]
 	then
-		"${CAT_CMD}" ${FIREHOL_OUTPUT}.log 1>&2
+		${CAT_CMD} ${FIREHOL_OUTPUT}.log 1>&2
 	fi
 	local r=$?
 	test ${r} -gt 0 && runtime_error ${check} ${r} ${line} "${cmd}" "$@"
@@ -3535,19 +3531,19 @@ fi
 if [ -z "${KERNEL_CONFIG}" -a -f "/lib/modules/`${UNAME_CMD} -r`/build/.config" ]
 then
 	KERNEL_CONFIG="/lib/modules/`${UNAME_CMD} -r`/build/.config"
-	"${CAT_CMD}" "${KERNEL_CONFIG}" >"${FIREHOL_DIR}/kcfg" || KERNEL_CONFIG=
+	${CAT_CMD} "${KERNEL_CONFIG}" >"${FIREHOL_DIR}/kcfg" || KERNEL_CONFIG=
 fi
 
 if [ -z "${KERNEL_CONFIG}" -a -f "/boot/config-`${UNAME_CMD} -r`" ]
 then
 	KERNEL_CONFIG="/boot/config-`${UNAME_CMD} -r`"
-	"${CAT_CMD}" "${KERNEL_CONFIG}" >"${FIREHOL_DIR}/kcfg" || KERNEL_CONFIG=
+	${CAT_CMD} "${KERNEL_CONFIG}" >"${FIREHOL_DIR}/kcfg" || KERNEL_CONFIG=
 fi
 
 if [ -z "${KERNEL_CONFIG}" -a -f "/usr/src/linux/.config" ]
 then
 	KERNEL_CONFIG="/usr/src/linux/.config"
-	"${CAT_CMD}" "${KERNEL_CONFIG}" >"${FIREHOL_DIR}/kcfg" || KERNEL_CONFIG=
+	${CAT_CMD} "${KERNEL_CONFIG}" >"${FIREHOL_DIR}/kcfg" || KERNEL_CONFIG=
 fi
 
 # Did we managed to find the kernel configuration?
@@ -3558,8 +3554,8 @@ then
 	# Load all the definitions for CONFIG_*_NF_* variables
 	# We grep what we care for, to make sure there is no garbage or malicious code
 	# in the file we will run.
-	"${CAT_CMD}" "${FIREHOL_DIR}/kcfg" | ${GREP_CMD} -e "^CONFIG_[A-Z0-9_]\+_NF_[A-Z0-9_]\+=[ynm]$" >"${FIREHOL_DIR}/kcfg.nf"
-	
+	${CAT_CMD} "${FIREHOL_DIR}/kcfg" | ${GREP_CMD} -e "^CONFIG_[A-Z0-9_]\+_NF_[A-Z0-9_]\+=[ynm]$" >"${FIREHOL_DIR}/kcfg.nf"
+
 	# run it to get the variables
 	source "${FIREHOL_DIR}/kcfg.nf"
 else
@@ -6310,7 +6306,7 @@ case "${arg}" in
 				echo
 				echo "--- MANGLE IPv4 ----------------------------------------------------------------"
 				echo
-				"${IPTABLES_CMD}" -t mangle -nxvL
+				${IPTABLES_CMD} -t mangle -nxvL
 			fi
 
 			if [ "${IPVER}" = "both" -o  "${IPVER}" = "ipv6" ]
@@ -6319,7 +6315,7 @@ case "${arg}" in
 				echo
 				echo "--- MANGLE IPv6 ----------------------------------------------------------------"
 				echo
-				"${IP6TABLES_CMD}" -t mangle -nxvL
+				${IP6TABLES_CMD} -t mangle -nxvL
 			fi
 
 			if [ "${IPVER}" = "both" -o  "${IPVER}" = "ipv4" ]
@@ -6328,7 +6324,7 @@ case "${arg}" in
 				echo
 				echo "--- NAT IPv4 -------------------------------------------------------------------"
 				echo
-				"${IPTABLES_CMD}" -t nat -nxvL
+				${IPTABLES_CMD} -t nat -nxvL
 			fi
 
 			if [ "${IPVER}" = "both" -o  "${IPVER}" = "ipv4" ]
@@ -6337,7 +6333,7 @@ case "${arg}" in
 				echo
 				echo "--- FILTER IPv4 ----------------------------------------------------------------"
 				echo
-				"${IPTABLES_CMD}" -nxvL
+				${IPTABLES_CMD} -nxvL
 			fi
 
 			if [ "${IPVER}" = "both" -o  "${IPVER}" = "ipv6" ]
@@ -6346,7 +6342,7 @@ case "${arg}" in
 				echo
 				echo "--- FILTER IPv6 ----------------------------------------------------------------"
 				echo
-				"${IP6TABLES_CMD}" -nxvL
+				${IP6TABLES_CMD} -nxvL
 			fi
 		) | ${PAGER_CMD}
 		exit $?
@@ -6906,17 +6902,17 @@ then
 			fi
 		) | ${SORT_CMD} | ${UNIQ_CMD} | ${TR_CMD} "\n" " "
 	}
-	
+
 	cd "${FIREHOL_DIR}"
-	"${MKDIR_CMD}" ports
-	"${MKDIR_CMD}" keys
+	${MKDIR_CMD} ports
+	${MKDIR_CMD} keys
 	cd ports
-	"${MKDIR_CMD}" tcp
-	"${MKDIR_CMD}" udp
+	${MKDIR_CMD} tcp
+	${MKDIR_CMD} udp
 
 	emit_version >&2
 
-	"${CAT_CMD}" >&2 <<EOF
+	${CAT_CMD} >&2 <<EOF
 FireHOL will now try to figure out its configuration file on this system.
 Please have all the services and network interfaces on this system running.
 

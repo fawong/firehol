@@ -1,0 +1,109 @@
+#!/bin/bash
+
+if [ "$1" != "-ok" ]
+then
+  echo "Do no run on a production system!"
+  echo ""
+  echo "This script will wreck your existing firewall, ultimately leaving"
+  echo "it empty."
+  echo ""
+  echo "If you are running remotely your session will get interrupted"
+  echo "Ensure you can re-establish control."
+  echo ""
+  echo "Re-run with '-ok' as a parameter to proceed"
+  exit 1
+fi
+
+shift
+
+if [ "`id -r -u`" != "0" ]
+then
+  echo "Must be root"
+  notroot="Y"
+fi
+
+if [ "$notroot" -o $# -ne 1 ]
+then
+  echo "Usage: sudo ./basic-tests -ok current|git-version|firehol"
+  exit 1
+fi
+
+case $1 in
+  current)
+   d=current
+   (cd .. && cat sbin/sanewall.in) > /tmp/sw-$d.$$
+  ;;
+  firehol*)
+   d=$1
+   (cd .. && git show $1:firehol.sh) > /tmp/sw-$d.$$
+   test ! -s /tmp/$d.$$ || echo "You can get the firehol-cvs-mirror from https://github.com/philwhineray/firehol-fork.git"
+
+  ;;
+  *)
+   d=$1
+   (cd .. && git show $1:sbin/sanewall.in) > /tmp/sw-$d.$$
+  ;;
+esac
+
+myexit() {
+  rm -f /tmp/sw-$d.$$
+  rm -f /tmp/sw-res.$$
+  rm -rf "@SANEWALL_CONFIG_DIR@"
+  exit 0
+}
+
+trap myexit SIGINT
+trap myexit SIGHUP
+
+test -s /tmp/sw-$d.$$ || exit 1
+chmod +x /tmp/sw-$d.$$
+
+have_ipv6="`grep PRIVATE_IPV6 /tmp/sw-$d.$$`"
+if [ "$have_ipv6" ]
+then
+  # NAT does not allow DROP, hence all_drops is lower
+  all_accepts=20
+  all_drops=16
+else
+  all_accepts=12
+  all_drops=8
+fi
+
+mkdir -p "@SANEWALL_CONFIG_DIR@/services"
+/tmp/sw-$d.$$ stop || exit
+/tmp/sw-$d.$$ status > /tmp/sw-res.$$ || exit
+drops=`grep DROP /tmp/sw-res.$$ | wc -l`
+accepts=`grep ACCEPT /tmp/sw-res.$$ | wc -l`
+echo "$d stop ... accepts=$accepts drops=$drops"
+if [ $accepts -ne $all_accepts ]
+then
+  echo "ERROR: Status not functional!"
+  exit 1
+fi
+if [ $drops -ne 0 ]
+then
+  echo "ERROR: Firewall not stopped!"
+  exit 1
+fi
+
+/tmp/sw-$d.$$ panic || exit
+/tmp/sw-$d.$$ status > /tmp/sw-res.$$ || exit
+drops=`grep DROP /tmp/sw-res.$$ | wc -l`
+accepts=`grep ACCEPT /tmp/sw-res.$$ | wc -l`
+echo "$d panic ... accepts=$accepts drops=$drops"
+if [ $accepts -ne $all_accepts ]
+then
+  echo "ERROR: Panic not functional!"
+  exit 1
+fi
+if [ $drops -ne $all_drops ]
+then
+  echo "ERROR: Panic not complete!"
+  exit 1
+fi
+
+/tmp/sw-$d.$$ stop
+
+echo
+echo "All seems OK"
+myexit
